@@ -666,7 +666,7 @@ def print_coverage(coverage_df):
 # MAIN PIPELINE
 # ============================================================
 
-def run():
+def run() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
     print("Loading cleaned data...")
 
