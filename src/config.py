@@ -26,3 +26,6 @@ popularity_model = models_dir / "popularity.joblib"
 
 # Environment variable for the API URL, defaulting to localhost if not set
 API_URL = os.getenv("API_URL", "http://127.0.0.1:8000")
+
+# path to reports directory
+REPORTS_DIR = project_root / "reports"
