@@ -127,8 +127,8 @@ http://localhost:8501
 
 ### 6. Evaluate the models
 
-Run five-fold evaluation and print Precision@k, Recall@k, and
-per-recommendation scores in terminal:
+Run k-fold evaluation and print Precision@k, Recall@k, and ...
+in terminal:
 
 ```bash
 python -m src.evaluate_models
