@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Environment variables and secrets
+.env
+
+# Jupyter notebooks
+*.ipynb
+.ipynb_checkpoints/
+
+# Local datasets
+data/raw/*
+!data/raw/.gitkeep
+
+# Processed data
+data/processed/*
+!data/processed/.gitkeep
+
+# Trained models
+models/*
+!models/.gitkeep
+
+# Experiment outputs
+wandb/
+logs/
+reports/
+
+# Operating-system files
+.DS_Store
+Thumbs.db
