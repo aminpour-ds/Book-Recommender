@@ -13,6 +13,13 @@ The project will include:
 - experiment logging
 
 
+## Setup
+
+```bash
+python -m venv .venv
+pip install -r requirements.txt
+```
+
 ## Data
 
 This project uses the Book-Crossing dataset (book ratings, book metadata, and user information), as uploaded on Kaggle. The data is not included in this repository, you need to download it first.
