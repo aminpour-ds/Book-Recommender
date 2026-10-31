@@ -10,3 +10,8 @@ models_dir = project_root / "models"
 Books = raw_data_dir / "Books.csv"
 Users = raw_data_dir / "Users.csv"
 Ratings = raw_data_dir / "Ratings.csv"
+
+# 3 CSV Processed data files
+Books_clean = processed_data_dir / "books_clean.csv"
+Users_clean = processed_data_dir / "users_clean.csv"
+Ratings_clean = processed_data_dir / "ratings_clean.csv"

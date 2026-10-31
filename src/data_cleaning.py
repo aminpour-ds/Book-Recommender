@@ -1,0 +1,102 @@
+import pandas as pd
+from src.data_Loading import load_data
+from src.config import processed_data_dir
+
+CURRENT_YEAR = 2026
+
+
+def safe_url(value):
+    """Return a clean string URL, or '' if the value is missing/NaN."""
+    if value is None:
+        return ""
+    text = str(value)
+    if text.lower() == "nan":
+        return ""
+    return text
+
+
+# ---------------------------------------------------------------------------
+# Clean Books
+# ---------------------------------------------------------------------------
+def clean_books(raw_books):
+    """
+    Clean the books data.
+
+    Rules:
+    - Remove duplicate ISBNs.
+    - Remove rows without ISBN or title.
+    - Convert publication year to a numeric value.
+    - Replace invalid and missing years as <NA>
+    - Replace missing authors and publishers with "Unknown" placeholders.
+    - missing/NaN URLs in the image columns become an empty string.
+    """
+    books = raw_books.copy()
+
+    # Strip whitespace from column names and fields
+    books.columns = books.columns.str.strip()
+    books["ISBN"] = books["ISBN"].str.strip()
+    books["Book-Title"] = books["Book-Title"].str.strip()
+    books["Book-Author"] = books["Book-Author"].str.strip()
+    books["Publisher"] = books["Publisher"].str.strip()
+    books["Image-URL-S"] = books["Image-URL-S"].str.strip()
+    books["Image-URL-M"] = books["Image-URL-M"].str.strip()
+    books["Image-URL-L"] = books["Image-URL-L"].str.strip()
+    books["Year-Of-Publication"] = books["Year-Of-Publication"].str.strip()
+
+    # Remove duplicate ISBNs
+    books = books.drop_duplicates(subset="ISBN", keep="first")
+
+    # Remove rows without ISBN or title or with empty strings in those fields
+    books = books.dropna(subset=["ISBN", "Book-Title"])
+    books = books[books["ISBN"] != ""]
+    books = books[books["Book-Title"] != ""]
+
+    # Convert publication year to a numeric value.
+    books["Year-Of-Publication"] = pd.to_numeric(books["Year-Of-Publication"], errors="coerce")
+
+    # Replace invalid and missing years as <NA>
+    invalid_year = (books["Year-Of-Publication"] < 1000) | (books["Year-Of-Publication"] > CURRENT_YEAR)
+    books.loc[invalid_year, "Year-Of-Publication"] = pd.NA
+    # Convert the "Year-Of-Publication" from float to Int64 type to allow for <NA> values.
+    books["Year-Of-Publication"] = books["Year-Of-Publication"].astype("Int64") 
+    
+    # Replace missing authors and publishers with "Unknown" placeholders.
+    books["Book-Author"] = books["Book-Author"].fillna("Unknown")
+    books["Publisher"] = books["Publisher"].fillna("Unknown")
+
+    # missing/NaN URLs in the image columns become an empty string.
+    books["Image-URL-S"] = books["Image-URL-S"].apply(safe_url)
+    books["Image-URL-M"] = books["Image-URL-M"].apply(safe_url)
+    books["Image-URL-L"] = books["Image-URL-L"].apply(safe_url)
+
+    books = books.reset_index(drop=True)
+    return books
+
+
+
+def clean_all_data():
+    """
+    Clean all data and save to processed data directory.
+    """
+    raw_books, raw_ratings, raw_users = load_data()
+
+    # Clean the data
+    cleaned_books = clean_books(raw_books)
+
+    # Create the processed data directory if it doesn't exist and save the cleaned data.
+    processed_data_dir.mkdir(parents=True, exist_ok=True)
+    cleaned_books.to_csv(processed_data_dir / "books_clean.csv", index=False)
+
+    # Print before-and-after cleaning.
+    print("\nCleaning summary")
+    print("=" * 60)
+    print(f"Books: {raw_books.shape} -> {cleaned_books.shape}")
+
+    print("\nCleaned files saved to:")
+    print(processed_data_dir)
+
+
+
+if __name__ == "__main__":
+    clean_all_data()
+
