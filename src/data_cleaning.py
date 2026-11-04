@@ -23,6 +23,7 @@ def clean_books(raw_books):
     Clean the books data.
 
     Rules:
+    - Strip whitespace from column names (the headers) and column fields (the data).
     - Remove duplicate ISBNs.
     - Remove rows without ISBN or title.
     - Convert publication year to a numeric value.
@@ -32,8 +33,9 @@ def clean_books(raw_books):
     """
     books = raw_books.copy()
 
-    # Strip whitespace from column names and fields
+    # Strip whitespace from column names (the headers)
     books.columns = books.columns.str.strip()
+    # Strip whitespace from column fields (the data)
     books["ISBN"] = books["ISBN"].str.strip()
     books["Book-Title"] = books["Book-Title"].str.strip()
     books["Book-Author"] = books["Book-Author"].str.strip()
@@ -52,13 +54,11 @@ def clean_books(raw_books):
     books = books[books["Book-Title"] != ""]
 
     # Convert publication year to a numeric value.
-    books["Year-Of-Publication"] = pd.to_numeric(books["Year-Of-Publication"], errors="coerce")
+    books["Year-Of-Publication"] = pd.to_numeric(books["Year-Of-Publication"], errors="coerce").astype("Int64") 
 
     # Replace invalid and missing years as <NA>
     invalid_year = (books["Year-Of-Publication"] < 1000) | (books["Year-Of-Publication"] > CURRENT_YEAR)
     books.loc[invalid_year, "Year-Of-Publication"] = pd.NA
-    # Convert the "Year-Of-Publication" from float to Int64 type to allow for <NA> values.
-    books["Year-Of-Publication"] = books["Year-Of-Publication"].astype("Int64") 
     
     # Replace missing authors and publishers with "Unknown" placeholders.
     books["Book-Author"] = books["Book-Author"].fillna("Unknown")
