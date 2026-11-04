@@ -127,7 +127,7 @@ def clean_all_data():
     """
     Clean all data and save to processed data directory.
     """
-    raw_books, raw_ratings, raw_users = load_data()
+    raw_users, raw_books, raw_ratings  = load_data()
 
     # Clean the data
     cleaned_books = clean_books(raw_books)
