@@ -25,7 +25,7 @@ def clean_books(raw_books):
     # Strip whitespace from column names (the headers)
     books.columns = books.columns.str.strip()
     # Strip whitespace from column fields (the data)
-    books["ISBN"] = books["ISBN"].str.strip()
+    books["ISBN"] = books["ISBN"].str.strip().str.upper()
     books["Book-Title"] = books["Book-Title"].str.strip()
     books["Book-Author"] = books["Book-Author"].str.strip()
     books["Publisher"] = books["Publisher"].str.strip()
@@ -133,7 +133,7 @@ def clean_ratings(ratings, books, users):
     ratings.columns = ratings.columns.str.strip()
     # Strip whitespace from column fields (the data)
     ratings["User-ID"] = ratings["User-ID"].str.strip()
-    ratings["ISBN"] = ratings["ISBN"].str.strip()
+    ratings["ISBN"] = ratings["ISBN"].str.strip().str.upper()
     ratings["Book-Rating"] = ratings["Book-Rating"].str.strip()
 
     # Convert User-ID and Book-Rating to numbers
