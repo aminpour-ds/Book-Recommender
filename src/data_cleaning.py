@@ -122,6 +122,55 @@ def clean_users(users):
     return users
 
 
+# ---------------------------------------------------------------------------
+# Clean Ratings
+# ---------------------------------------------------------------------------
+def clean_ratings(ratings, books, users):
+    """
+    Clean the Ratings table.
+
+    Rules:
+    - Strip whitespace from column names and fields
+    - Convert User-ID and Book-Rating to numbers
+    - Remove rows with invalid user IDs
+    - Remove rows without user IDs or ISBN or Book-Rating
+    - Remove duplicate rows with same "User-ID and ISBN", keep the last occurrence.
+    - Remove rows with invalid ratings (below 1 or above 10).
+    - Keep only ratings whose book (ISBN) and user actually exist.
+    """
+    ratings = ratings.copy()
+
+    # Strip whitespace from column names (the headers)
+    ratings.columns = ratings.columns.str.strip()
+    # Strip whitespace from column fields (the data)
+    ratings["User-ID"] = ratings["User-ID"].str.strip()
+    ratings["ISBN"] = ratings["ISBN"].str.strip()
+    ratings["Book-Rating"] = ratings["Book-Rating"].str.strip()
+
+    # Convert User-ID and Book-Rating to numbers
+    ratings["User-ID"] = pd.to_numeric(ratings["User-ID"], errors="coerce").astype("Int64")
+    ratings["Book-Rating"] = pd.to_numeric(ratings["Book-Rating"], errors="coerce").round().astype("Int64")
+
+    # Remove rows with invalid user IDs
+    ratings = ratings[ratings["User-ID"] > 0]
+
+    # Remove rows without user IDs or ISBN or Book-Rating
+    ratings = ratings.dropna(subset=["User-ID", "ISBN", "Book-Rating"])
+    
+    # Remove duplicate rows with same "User-ID and ISBN", keep the last occurrence.
+    ratings = ratings.drop_duplicates(subset=["User-ID", "ISBN"], keep="last")
+        
+    # Remove rows with invalid ratings (below 1 or above 10)
+    invalid_rating = (ratings["Book-Rating"] < 1) | (ratings["Book-Rating"] > 10)
+    ratings = ratings[~invalid_rating]
+
+    # Keep only ratings whose book(ISBN) and user actually exist
+    ratings = ratings[ratings["ISBN"].isin(books["ISBN"]) & ratings["User-ID"].isin(users["User-ID"])]
+
+    ratings = ratings.reset_index(drop=True)
+    return ratings
+
+
 
 def clean_all_data():
     """
@@ -132,16 +181,20 @@ def clean_all_data():
     # Clean the data
     cleaned_books = clean_books(raw_books)
     cleaned_users = clean_users(raw_users)
+    cleaned_ratings = clean_ratings(raw_ratings, cleaned_books, cleaned_users)
 
     # Create the processed data directory if it doesn't exist and save the cleaned data.
     processed_data_dir.mkdir(parents=True, exist_ok=True)
     cleaned_books.to_csv(processed_data_dir / "books_clean.csv", index=False)
     cleaned_users.to_csv(processed_data_dir / "users_clean.csv", index=False)
+    cleaned_ratings.to_csv(processed_data_dir / "ratings_clean.csv", index=False)
+
     # Print before-and-after cleaning.
     print("\nCleaning summary")
     print("=" * 60)
-    print(f"Books: {raw_books.shape} -> {cleaned_books.shape}")
-    print(f"Users: {raw_users.shape} -> {cleaned_users.shape}")
+    print(f"Books before cleaning: {raw_books.shape} -> after cleaning: {cleaned_books.shape}")
+    print(f"Users before cleaning: {raw_users.shape} -> after cleaning: {cleaned_users.shape}")
+    print(f"Ratings before cleaning: {raw_ratings.shape} -> after cleaning: {cleaned_ratings.shape}")
     print("\nCleaned files saved to:")
     print(processed_data_dir)
 
