@@ -172,6 +172,44 @@ def clean_ratings(ratings, books, users):
 
 
 
+# ---------------------------------------------------------------------------
+# filter sparse matrix
+# ---------------------------------------------------------------------------
+def filter_sparse(ratings):
+    """
+    for solving the sparsity problem and optimizing the collaborative model, 
+    filter out very inactive users and rarely rated books.
+
+    Rules:
+    - Remove users with fewer than 5 ratings.
+    - Remove books with fewer than 5 ratings.
+    - Repeat until no more users or books can be removed.
+    """
+    ratings = ratings.copy()
+    min_user = 5   # a user must have rated at least 5 books, otherwise they're dropped.
+    min_book = 5   # a book must have been rated by at least 5 users, otherwise it's dropped.
+
+    while True:
+        # Keep users with enough ratings.
+        user_counts = ratings["User-ID"].value_counts()
+        users_to_remove = user_counts[user_counts < min_user].index
+        ratings = ratings[~ratings["User-ID"].isin(users_to_remove)]
+
+        # Keep books with enough ratings.
+        book_counts = ratings["ISBN"].value_counts()
+        books_to_remove = book_counts[book_counts < min_book].index
+        ratings = ratings[~ratings["ISBN"].isin(books_to_remove)]
+
+        # If no more users or books to remove, break the loop
+        if len(users_to_remove) == 0 and len(books_to_remove) == 0:
+            break      
+        
+
+    ratings = ratings.reset_index(drop=True)
+    return ratings
+
+
+
 def clean_all_data():
     """
     Clean all data and save to processed data directory.
@@ -182,19 +220,25 @@ def clean_all_data():
     cleaned_books = clean_books(raw_books)
     cleaned_users = clean_users(raw_users)
     cleaned_ratings = clean_ratings(raw_ratings, cleaned_books, cleaned_users)
+    cleaned_final_ratings = filter_sparse(cleaned_ratings)
+
+    # Drop books and users left without ratings after filter_sparse, so the three tables stay consistent
+    # and embedding tables have no unused entries that waste memory and never get trained
+    cleaned_final_books = cleaned_books[cleaned_books["ISBN"].isin(cleaned_final_ratings["ISBN"])].reset_index(drop=True)
+    cleaned_final_users = cleaned_users[cleaned_users["User-ID"].isin(cleaned_final_ratings["User-ID"])].reset_index(drop=True)
 
     # Create the processed data directory if it doesn't exist and save the cleaned data.
     processed_data_dir.mkdir(parents=True, exist_ok=True)
-    cleaned_books.to_csv(processed_data_dir / "books_clean.csv", index=False)
-    cleaned_users.to_csv(processed_data_dir / "users_clean.csv", index=False)
-    cleaned_ratings.to_csv(processed_data_dir / "ratings_clean.csv", index=False)
+    cleaned_final_books.to_csv(processed_data_dir / "books_clean.csv", index=False)
+    cleaned_final_users.to_csv(processed_data_dir / "users_clean.csv", index=False)
+    cleaned_final_ratings.to_csv(processed_data_dir / "ratings_clean.csv", index=False)
 
     # Print before-and-after cleaning.
     print("\nCleaning summary")
     print("=" * 60)
-    print(f"Books before cleaning: {raw_books.shape} -> after cleaning: {cleaned_books.shape}")
-    print(f"Users before cleaning: {raw_users.shape} -> after cleaning: {cleaned_users.shape}")
-    print(f"Ratings before cleaning: {raw_ratings.shape} -> after cleaning: {cleaned_ratings.shape}")
+    print(f"Books:   {raw_books.shape} -> cleaned {cleaned_books.shape} -> final {cleaned_final_books.shape}")
+    print(f"Users:   {raw_users.shape} -> cleaned {cleaned_users.shape} -> final {cleaned_final_users.shape}")
+    print(f"Ratings: {raw_ratings.shape} -> cleaned {cleaned_ratings.shape} -> final {cleaned_final_ratings.shape}")
     print("\nCleaned files saved to:")
     print(processed_data_dir)
 
