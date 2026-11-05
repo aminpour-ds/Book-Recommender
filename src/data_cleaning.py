@@ -24,8 +24,8 @@ def clean_books(raw_books):
 
     Rules:
     - Strip whitespace from column names (the headers) and column fields (the data).
-    - Remove duplicate ISBNs.
     - Remove rows without ISBN or title.
+    - Remove duplicate ISBNs.(Deduplicate after removing bad rows)
     - Convert publication year to a numeric value.
     - Replace invalid and missing years as <NA>
     - Replace missing authors and publishers with "Unknown" placeholders.
@@ -45,13 +45,13 @@ def clean_books(raw_books):
     books["Image-URL-L"] = books["Image-URL-L"].str.strip()
     books["Year-Of-Publication"] = books["Year-Of-Publication"].str.strip()
 
-    # Remove duplicate ISBNs
-    books = books.drop_duplicates(subset="ISBN", keep="first")
-
     # Remove rows without ISBN or title or with empty strings in those fields
     books = books.dropna(subset=["ISBN", "Book-Title"])
     books = books[books["ISBN"] != ""]
     books = books[books["Book-Title"] != ""]
+
+    # Remove duplicate ISBNs
+    books = books.drop_duplicates(subset="ISBN", keep="first")
 
     # Convert publication year to a numeric value.
     books["Year-Of-Publication"] = pd.to_numeric(books["Year-Of-Publication"], errors="coerce").astype("Int64") 
