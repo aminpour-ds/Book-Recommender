@@ -25,7 +25,6 @@ def load_data():
     users_df = read_csv_file(Users)
     books_df = read_csv_file(Books)
     ratings_df = read_csv_file(Ratings)
-    ratings_df["Book-Rating"] = pd.to_numeric(ratings_df["Book-Rating"], errors="coerce")
 
     return users_df, books_df, ratings_df
 
