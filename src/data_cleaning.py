@@ -4,17 +4,6 @@ from src.config import processed_data_dir
 
 CURRENT_YEAR = 2026
 
-
-def safe_url(value):
-    """Return a clean string URL, or '' if the value is missing/NaN."""
-    if value is None:
-        return ""
-    text = str(value)
-    if text.lower() == "nan":
-        return ""
-    return text
-
-
 # ---------------------------------------------------------------------------
 # Clean Books
 # ---------------------------------------------------------------------------
@@ -65,9 +54,9 @@ def clean_books(raw_books):
     books["Publisher"] = books["Publisher"].replace("", pd.NA).fillna("Unknown")
 
     # missing/NaN URLs in the image columns become an empty string.
-    books["Image-URL-S"] = books["Image-URL-S"].apply(safe_url)
-    books["Image-URL-M"] = books["Image-URL-M"].apply(safe_url)
-    books["Image-URL-L"] = books["Image-URL-L"].apply(safe_url)
+    books["Image-URL-S"] = books["Image-URL-S"].fillna("")
+    books["Image-URL-M"] = books["Image-URL-M"].fillna("")
+    books["Image-URL-L"] = books["Image-URL-L"].fillna("")
 
     books = books.reset_index(drop=True)
     return books
