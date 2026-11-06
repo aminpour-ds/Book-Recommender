@@ -1,3 +1,5 @@
+from src.config import TOP_K
+
 class PopularityRecommender:
     """Recommend books according to their number of ratings."""
 
@@ -33,7 +35,7 @@ class PopularityRecommender:
         return self
 
 
-    def recommend(self, top_k=10):
+    def recommend(self, top_k=TOP_K):
         """
         Return the most popular top_k books.
         A list of dictionaries with ISBN, title, author, rating_count and average_rating 
