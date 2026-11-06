@@ -17,7 +17,7 @@ def clean_books(raw_books):
     - Remove duplicate ISBNs.(Deduplicate after removing bad rows)
     - Convert publication year to a numeric value.
     - Replace invalid and missing years as <NA>
-    - Replace missing authors and publishers with "Unknown" placeholders.
+    - In authors and publishers Replace missing values "None, NaN, pd.NA" with "" placeholders.
     - missing/NaN URLs in the image columns become an empty string.
     """
     books = raw_books.copy()
@@ -49,9 +49,9 @@ def clean_books(raw_books):
     invalid_year = (books["Year-Of-Publication"] < 1000) | (books["Year-Of-Publication"] > CURRENT_YEAR)
     books.loc[invalid_year, "Year-Of-Publication"] = pd.NA
     
-    # Replace missing authors and publishers with "Unknown" placeholders.
-    books["Book-Author"] = books["Book-Author"].replace("", pd.NA).fillna("Unknown")
-    books["Publisher"] = books["Publisher"].replace("", pd.NA).fillna("Unknown")
+    # In authors and publishers Replace missing values "None, NaN, pd.NA" with "" placeholders.
+    books["Book-Author"] = books["Book-Author"].fillna("")
+    books["Publisher"] = books["Publisher"].fillna("")
 
     # missing/NaN URLs in the image columns become an empty string.
     books["Image-URL-S"] = books["Image-URL-S"].fillna("")
@@ -76,7 +76,7 @@ def clean_users(users):
     - Remove duplicate user ID. 
     - Convert age to a numeric, round value.
     - Replace missing ages and invalid ages "below 5 or above 100" as <NA>
-    - Replace missing locations with "Unknown" placeholders.
+    - In locations Replace missing values "None, NaN, pd.NA" with "" placeholders.
     """
     users = users.copy()
 
@@ -104,8 +104,8 @@ def clean_users(users):
     invalid_age = (users["Age"] < 5) | (users["Age"] > 100)
     users.loc[invalid_age, "Age"] = pd.NA
 
-    # Replace missing locations with "Unknown" placeholders.
-    users["Location"] = users["Location"].replace("", pd.NA).fillna("Unknown")
+    # In locations Replace missing values "None, NaN, pd.NA" with "" placeholders.
+    users["Location"] = users["Location"].fillna("")
 
     users = users.reset_index(drop=True)
     return users
