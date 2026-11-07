@@ -45,11 +45,11 @@ Install the dependencies and run the cleaning scriptThis writes the cleaned file
 
 ```bash
 pip install -r requirements.txt
-python src/data_cleaning.py
+python -m src.data_cleaning
 ```
 
 ### 3. Train / run the recommender
 
 ```bash
-python src/train_models.py
+python -m src.train_models
 ```
