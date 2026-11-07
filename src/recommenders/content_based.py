@@ -129,9 +129,12 @@ class ContentBasedRecommender:
         return results
 
 
-    def save(self, path):
-        """Save the fitted ContentBasedRecommender object to a file."""
-        joblib.dump(self, path)
+    def save(self, file_path):
+        """Save the fitted recommender to a file."""
+        if self.tfidf_matrix is None:
+            raise RuntimeError("The recommender has not been fitted. Call fit() before save().")
+
+        joblib.dump(self, file_path)
 
 
     @staticmethod
