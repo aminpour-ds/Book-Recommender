@@ -18,3 +18,6 @@ Ratings_clean = processed_data_dir / "ratings_clean.csv"
 
 # Default number of recommendations to return
 TOP_K=10
+
+# Path to the trained models file
+content_based_model = models_dir / "content_based.joblib"
