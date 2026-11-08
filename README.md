@@ -55,6 +55,11 @@ python -m src.data_cleaning
 python -m src.train_models
 ```
 
+**Make sure the model exists in the `models/` folder before running the server. You can check the contents of the folder with:**
+```bash
+Get-ChildItem models
+```
+
 ### 4. Run the server/fastapi
 
 ```bash
