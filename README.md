@@ -41,8 +41,9 @@ Rename the files to : Ratings, Books, Users
 
 ### 2. Create the processed data
 
-Install the dependencies and run the cleaning scriptThis writes the cleaned files to `data/processed/`:
+Install the dependencies and run the data_cleaning script. This writes the cleaned files to `data/processed/`:
 
+Run all commands from the project root (the folder that contains `src/` and `api/`).
 ```bash
 pip install -r requirements.txt
 python -m src.data_cleaning
@@ -52,4 +53,55 @@ python -m src.data_cleaning
 
 ```bash
 python -m src.train_models
+```
+
+### 4. Run the server/fastapi
+
+```bash
+uvicorn api.main:app --reload
+```
+
+The API is then available at `http://127.0.0.1:8000`.
+
+### Interactive documentation
+
+Open `http://127.0.0.1:8000/docs` for the full, interactive API documentation, where you can also try the endpoints in the browser.
+
+### Endpoints
+
+| Method | Path         | Description                                    |
+|--------|--------------|------------------------------------------------|
+| GET    | `/`          | Basic information about the API                |
+| GET    | `/health`    | Health check (whether the model loaded)        |
+| POST   | `/recommend` | Books similar to a given title                 |
+
+
+### Example request:
+
+```bash
+curl -X POST http://127.0.0.1:8000/recommend \
+  -H "Content-Type: application/json" \
+  -d '{"title": "potter", "top_k": 2}'
+```
+
+### Example response:
+
+```json
+{
+  "query": "potter",
+  "recommendations": [
+    {
+      "ISBN": "059035342X",
+      "title": "Harry Potter and the Sorcerer's Stone (Harry Potter (Paperback))",
+      "author": "J. K. Rowling",
+      "similarity": 8327
+    },
+    {
+      "ISBN": "0590353403",
+      "title": "Harry Potter and the Sorcerer's Stone (Book 1)",
+      "author": "J. K. Rowling",
+      "similarity": 8123
+    }
+  ]
+}
 ```
