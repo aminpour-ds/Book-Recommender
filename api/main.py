@@ -28,6 +28,7 @@ class BookRecommendation(BaseModel):
     title: str
     author: str
     similarity: float
+    image_url: str = ""
 
 
 # The shape of the JSON response returned by the API when recommendations are requested.
@@ -85,6 +86,7 @@ def recommend(payload: RecommendationRequest, request: Request):
             title=str(book["Book-Title"]),
             author=str(book["Book-Author"]),
             similarity=float(book["similarity"]),
+            image_url=str(book.get("Image-URL-M", "")),
         )
         recommendation_objects.append(recommendation)
 

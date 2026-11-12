@@ -119,10 +119,14 @@ class ContentBasedRecommender:
             
             seen_titles.add(self.title_keys[i])
             book = self.books.iloc[i]
+            image_url = book.get("Image-URL-M", "")
+            if not isinstance(image_url, str):  # missing values (NaN) become ""
+                image_url = ""
             results.append({
                 "ISBN": book["ISBN"],
                 "Book-Title": book["Book-Title"],
                 "Book-Author": book["Book-Author"],
+                "Image-URL-M": image_url,
                 "similarity": round(float(similarities[i]), 4),
             })
         
