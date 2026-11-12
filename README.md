@@ -62,6 +62,8 @@ Get-ChildItem models
 
 ### 4. Run the server/fastapi
 
+## Open one terminal and run:
+
 ```bash
 uvicorn api.main:app --reload
 ```
@@ -110,3 +112,16 @@ curl -X POST http://127.0.0.1:8000/recommend \
   ]
 }
 ```
+
+### 5. Start Streamlit UI
+
+## Open a second terminal in the project root and run: 
+
+```bash
+python -m streamlit run ui/app.py
+```
+
+Streamlit should open a browser page:
+http://localhost:8501
+
+

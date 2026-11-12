@@ -1,6 +1,12 @@
 pandas
 numpy
+# For the machine learning model
 scikit-learn
 joblib
+# For the FastAPI backend
 fastapi
 uvicorn[standard]
+# Build the Streamlit UI
+requests
+streamlit
+Pillow
