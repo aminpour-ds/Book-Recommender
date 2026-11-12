@@ -98,9 +98,11 @@ class ContentBasedRecommender:
             return []
 
         # find the similarity of this book with all other books. with flatten() converts the similarity matrix from 2D to 1D.
-        similarities = cosine_similarity(self.tfidf_matrix.getrow(index), self.tfidf_matrix,).flatten()
-        # ordered from the highest similarity to the lowest. 
-        similarities = similarities.argsort()[::-1]
+        similarity_scores = cosine_similarity(
+            self.tfidf_matrix.getrow(index), self.tfidf_matrix,
+        ).flatten()
+        # Get the book indexes ordered from highest similarity to lowest.
+        ranked_indexes = similarity_scores.argsort()[::-1]
 
         # Get the full cleaned title of the matched query book.
         query_title = self.title_keys[index]   
@@ -108,9 +110,9 @@ class ContentBasedRecommender:
 
         # Walk through the books from most to least similar. Skip the query book and any books that have already been seen. Stop when we have enough results or when the similarity is zero or negative.
         results = []
-        for i in similarities:
+        for i in ranked_indexes:
             # Stop the loop when you have enough results (top_k), or when the current book has no similarity at all (0)
-            if len(results) == top_k or similarities[i] <= 0:
+            if len(results) == top_k or similarity_scores[i] <= 0:
                 break
 
             # If this book’s title was already used (the query itself, or an edition already chosen), skip it.
@@ -127,7 +129,7 @@ class ContentBasedRecommender:
                 "Book-Title": book["Book-Title"],
                 "Book-Author": book["Book-Author"],
                 "Image-URL-M": image_url,
-                "similarity": round(float(similarities[i]), 4),
+                "similarity": round(float(similarity_scores[i]), 4),
             })
         
         return results
