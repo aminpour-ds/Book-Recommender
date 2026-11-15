@@ -22,6 +22,7 @@ TOP_K=10
 
 # Path to the trained models file
 content_based_model = models_dir / "content_based.joblib"
+popularity_model = models_dir / "popularity.joblib"
 
 # Environment variable for the API URL, defaulting to localhost if not set
 API_URL = os.getenv("API_URL", "http://127.0.0.1:8000")

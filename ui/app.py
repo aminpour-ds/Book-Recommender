@@ -57,7 +57,7 @@ def resolve_cover(url):
 
 
 
-def get_recommendations(title, top_k):
+def get_recommendations(user_id, title, top_k):
     """
     Ask the backend for top_k similar books of title. 
     Returns two values when a network error occurs:
@@ -65,12 +65,13 @@ def get_recommendations(title, top_k):
     2. An error message for the UI.
     """
     try:
-        response = requests.post(f"{API_URL}/recommend", json={"title": title, "top_k": top_k}, timeout=30,)
+        response = requests.post(f"{API_URL}/recommend", json={"user_id": user_id.strip() or None,"title": title.strip() or None, "top_k": top_k}, timeout=30,)
     except requests.exceptions.RequestException:
         return None, (f"Could not reach the backend at {API_URL}. Make sure the FastAPI server is running.")
 
-    if response.status_code == 404:
-        return None, "No book was found with that title. Try a different spelling or part of the title."
+    if response.status_code == 400:
+        error_data = response.json()
+        return None, error_data.get("detail", "Personalized recommendations are not implemented yet.",)
 
     if response.status_code != 200:
         return None, f"Backend returned an error (status {response.status_code})."
@@ -87,6 +88,9 @@ def show_recommendations(data):
     """
 
     recommendations = data["recommendations"]
+
+    if data.get("message"):
+        st.info(data["message"])
 
     if not recommendations:
         st.info("This book was found, but no similar books were returned.")
@@ -106,7 +110,14 @@ def show_recommendations(data):
         with details_column:
             st.markdown(f"**{rank}. {book['title']}**")
             st.write(f"by {book['author']}")
-            st.write(f"Similarity: {book['similarity']:.4f}")      # :.4f formats it as a decimal number
+            if book.get("similarity") is not None:
+                st.write(f"Similarity: {book['similarity']:.4f}") # :.4f formats it as a decimal number
+
+            if book.get("rating_count") is not None:
+                st.write(f"Ratings: {book['rating_count']}")
+
+            if book.get("average_rating") is not None:
+                st.write(f"Average rating: {book['average_rating']:.2f}")
 
         st.divider()     # Displays a horizontal dividing line after each recommendation for separating the books.
 
@@ -118,24 +129,26 @@ def show_recommendations(data):
 st.set_page_config(page_title="Book Recommender", layout="centered")
 
 st.title("Book Recommender")
-st.write("Find books similar to a title you already like.")
+st.write("Get recommendations based on your reading history or overall book popularity.")
 
 # Sidebar: settings.
 st.sidebar.header("Settings")
 top_k = st.sidebar.slider("Number of recommendations", min_value=1, max_value=10, value=5)
+user_id = st.text_input("User ID", placeholder="e.g. 276725")
 
 with st.form("content_form"):
     title = st.text_input("Book title", placeholder="e.g. The Da Vinci Code")
     submitted = st.form_submit_button("Recommend similar books")   # If the user clicks the submitted, it becomes True.
 
 if submitted:
-    if not title.strip():
-        st.warning("Please enter a book title.")
-    else:
-        with st.spinner("Searching for similar books..."):    # Displays a loading message while the backend request is running.
-            data, error = get_recommendations(title.strip(), top_k)
+    with st.spinner("Searching for recommendations..."):
+        data, error = get_recommendations(
+            user_id,
+            title,
+            top_k,
+        )
 
-        if error is not None:
-            st.error(error)
-        else:
-            show_recommendations(data)
+    if error is not None:
+        st.error(error)
+    else:
+        show_recommendations(data)

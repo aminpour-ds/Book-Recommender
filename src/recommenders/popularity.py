@@ -1,3 +1,4 @@
+import joblib
 from src.config import TOP_K
 
 class PopularityRecommender:
@@ -46,6 +47,24 @@ class PopularityRecommender:
         if top_k <= 0:
             raise ValueError("top_k must be greater than zero.")
 
-        recommendations = self.popular_books.head(top_k)
+        recommendations = self.popular_books.head(top_k).copy()
+        if "Image-URL-M" not in recommendations.columns:
+            recommendations["Image-URL-M"] = ""
 
-        return recommendations[["ISBN", "Book-Title", "Book-Author", "rating_count", "average_rating"]].to_dict(orient="records")
+        recommendations["Image-URL-M"] = recommendations["Image-URL-M"].fillna("")
+
+        return recommendations[["ISBN", "Book-Title", "Book-Author", "Image-URL-M" , "rating_count", "average_rating"]].to_dict(orient="records")
+
+
+    def save(self, file_path):
+        """Save the Popularity Recommender to a file."""
+        if self.popular_books is None:
+            raise RuntimeError("The popularity recommender has not been fitted. Call fit() before save().")
+
+        joblib.dump(self, file_path)
+
+
+    @staticmethod
+    def load(path):
+        """Load a previously saved popularity recommender object from a file."""
+        return joblib.load(path)
