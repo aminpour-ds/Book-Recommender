@@ -112,12 +112,10 @@ def show_recommendations(data):
             st.write(f"by {book['author']}")
             if book.get("similarity") is not None:
                 st.write(f"Similarity: {book['similarity']:.4f}") # :.4f formats it as a decimal number
-
+            if book.get("predicted_rating") is not None:
+                st.write(f"Predicted rating: {book['predicted_rating']:.2f}/10")
             if book.get("rating_count") is not None:
                 st.write(f"Ratings: {book['rating_count']}")
-
-            if book.get("average_rating") is not None:
-                st.write(f"Average rating: {book['average_rating']:.2f}")
 
         st.divider()     # Displays a horizontal dividing line after each recommendation for separating the books.
 

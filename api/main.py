@@ -39,9 +39,9 @@ class BookRecommendation(BaseModel):
     title: str
     author: str
     similarity: float | None = None
+    predicted_rating: float | None = None
     image_url: str = ""
     rating_count: int | None = None
-    average_rating: float | None = None
 
 
 # The shape of the JSON response returned by the API when recommendations are requested.
@@ -97,9 +97,9 @@ def build_API_recommendations(recommendations, source):
                 title=str(book["Book-Title"]),
                 author=str(book["Book-Author"]),
                 similarity=None,
+                predicted_rating=float(book["average_rating"]),
                 image_url=str(book.get("Image-URL-M", "")),
                 rating_count=int(book["rating_count"]),
-                average_rating=float(book["average_rating"]),
             )
         elif source == "content-based":
             recommendation = BookRecommendation(
@@ -107,6 +107,7 @@ def build_API_recommendations(recommendations, source):
                 title=str(book["Book-Title"]),
                 author=str(book["Book-Author"]),
                 similarity=float(book["similarity"]),
+                predicted_rating=None,
                 image_url=str(book.get("Image-URL-M", "")),
             )
         else:
