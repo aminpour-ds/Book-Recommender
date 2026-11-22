@@ -135,5 +135,34 @@ python -m src.evaluate_models
 ```
 
 
+### 7. Log evaluation experiments with Weights & Biases _ wandb
+
+Run the evaluation and W&B logging script:
+
+```bash
+python -m src.wandb_logging_run
+```
+
+This reruns the evaluation pipeline and creates one W&B run for each model.
+Each run logs the evaluation configuration, metrics at every `K_VALUES`
+(currently 5, 10, and 20), mean and standard-deviation values for metrics such
+as Precision, Recall, F1, Hit Rate, MAP, plus the split summary,
+user coverage, seed details, and full evaluation results.
+
+W&B is set to `offline` by default. To publish runs online, run `wandb login`
+and set `WANDB_MODE=online` before starting the script:
+
+```powershell
+wandb login
+$env:WANDB_MODE="online"
+python -m src.wandb_logging_run
+```
+
+For offline runs, W&B data is saved under `wandb/`. Sync it to your workspace with:
+
+```powershell
+wandb sync wandb/offline-run-*
+```
+
 
 

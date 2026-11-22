@@ -1,6 +1,7 @@
 
 import os
 from pathlib import Path
+from typing import Literal, cast
 
 project_root = Path(__file__).resolve().parent.parent
 raw_data_dir = project_root / "data" / "raw"
@@ -29,3 +30,16 @@ API_URL = os.getenv("API_URL", "http://127.0.0.1:8000")
 
 # path to reports directory
 REPORTS_DIR = project_root / "reports"
+
+# Environment variable for the W&B mode, defaulting to offline if not set
+# modes: "online", "offline", "disabled", "shared"
+WandbMode = Literal["online", "offline", "disabled", "shared"]
+
+_wanb_mode = os.getenv("WANDB_MODE", "offline").strip().lower()
+if _wanb_mode not in {"online", "offline", "disabled", "shared"}:
+    raise ValueError(
+        f"Invalid WANDB_MODE {_wanb_mode!r}. "
+        "Use: online, offline, disabled, or shared."
+    )
+
+WANDB_MODE = cast(WandbMode, _wanb_mode)

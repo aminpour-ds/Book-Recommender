@@ -11,3 +11,4 @@ requests
 streamlit
 Pillow
 ranx
+wandb
