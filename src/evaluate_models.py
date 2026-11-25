@@ -408,16 +408,13 @@ def generate_popularity_recommendations(cases, ratings, books, isbn_to_title, ti
     for item in popular_books:
         isbn = normalize_isbn(item.get("ISBN"))
         title = isbn_to_title.get(isbn)
-
-        if isbn is None:
-            continue
         
         # remove duplicate titles from the popular_books ranking.
         if not title or title in global_seen_titles:
             continue
 
         global_seen_titles.add(title)
-        global_ranked_titles.append((title, isbn))
+        global_ranked_titles.append((title, title_to_isbn[title]))
 
     recommendations_by_query = {}
 
