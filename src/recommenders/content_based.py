@@ -45,7 +45,8 @@ class ContentBasedRecommender:
         self.tfidf_matrix = self.vectorizer.transform(book_texts)   # convert texts to vectors. matrix is stored in sparse form(only non-zero values)
 
         # create a dictionary mapping Lowercased titles. Each key is a cleaned title and each value is the row number of that book. 
-        self.title_keys = (self.books["Book-Title"].astype(str).str.strip().str.lower().tolist())
+        # " ".join(...split()) also turns multiple spaces inside the title into one space.
+        self.title_keys = [" ".join(str(t).strip().lower().split()) for t in self.books["Book-Title"]]
         self.title_to_index = {}
         for index, key in enumerate(self.title_keys):
             self.title_to_index.setdefault(key, index)
@@ -58,7 +59,7 @@ class ContentBasedRecommender:
         if title is None:
             return None
         
-        key = str(title).strip().lower()
+        key = " ".join(str(title).strip().lower().split())
 
         if not key:
             return None
