@@ -19,7 +19,7 @@ class ExperimentLogger:
             config=config or {},
             tags=tags or [],
             mode=mode,
-            reinit=True,
+            reinit="finish_previous",
         )
 
     def log(self, metrics, step=None):

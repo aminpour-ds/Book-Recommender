@@ -50,10 +50,11 @@ def log_model_run(model_name, results_df, coverage_df, seed_details_df,
         metrics = {}
 
         for metric in METRICS:
-            metrics[f"{metric}_mean_at_{k}"] = float(result_row[f"{metric}_mean"])
-            metrics[f"{metric}_std_at_{k}"] = float(result_row[f"{metric}_std"])
+            metrics[f"{metric}_mean"] = float(result_row[f"{metric}_mean"])
+            metrics[f"{metric}_std"] = float(result_row[f"{metric}_std"])
 
-        logger.log(metrics)
+        # step=k puts K on the x-axis, so each model becomes one line per metric in W&B.
+        logger.log(metrics, step=k)
 
     final_row = model_results.sort_values("k").iloc[-1]
     logger.log({
