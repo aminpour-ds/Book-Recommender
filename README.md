@@ -15,8 +15,9 @@ The project will include:
 
 ## Setup
 
-```bash
+```powershell
 python -m venv .venv
+.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
@@ -44,19 +45,19 @@ Rename the files to : Ratings, Books, Users
 Install the dependencies and run the data_cleaning script. This writes the cleaned files to `data/processed/`:
 
 Run all commands from the project root (the folder that contains `src/` and `api/`).
-```bash
+```powershell
 pip install -r requirements.txt
 python -m src.data_cleaning
 ```
 
 ### 3. Train / run the recommender
 
-```bash
+```powershell
 python -m src.train_models
 ```
 
 **Make sure the model exists in the `models/` folder before running the server. You can check the contents of the folder with:**
-```bash
+```powershell
 Get-ChildItem models
 ```
 
@@ -64,7 +65,7 @@ Get-ChildItem models
 
 ## Open one terminal and run:
 
-```bash
+```powershell
 uvicorn api.main:app --reload
 ```
 
@@ -85,10 +86,10 @@ Open `http://127.0.0.1:8000/docs` for the full, interactive API documentation, w
 
 ### Example request:
 
-```bash
-curl -X POST http://127.0.0.1:8000/recommend \
-  -H "Content-Type: application/json" \
-  -d '{"title": "potter", "top_k": 2}'
+```powershell
+Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/recommend `
+  -ContentType "application/json" `
+  -Body '{"title": "potter", "top_k": 2}'
 ```
 
 ### Example response:
@@ -117,7 +118,7 @@ curl -X POST http://127.0.0.1:8000/recommend \
 
 ## Open a second terminal in the project root and run: 
 
-```bash
+```powershell
 python -m streamlit run ui/app.py
 ```
 
@@ -127,42 +128,37 @@ http://localhost:8501
 
 ### 6. Evaluate the models
 
-Run k-fold evaluation and print Precision@k, Recall@k, and ...
-in terminal:
+Evaluate the models on a per-user train/test split and print Precision@k, Recall@k, Hit Rate@k, MAP, MRR, and NDCG.
+The reports are saved as CSV files in `reports/`:
 
-```bash
+```powershell
 python -m src.evaluate_models
 ```
 
 
-### 7. Log evaluation experiments with Weights & Biases _ wandb
+### 7. Log evaluation experiments with Weights & Biases (wandb)
 
 Run the evaluation and W&B logging script:
 
-```bash
+```powershell
 python -m src.wandb_logging_run
 ```
 
 This reruns the evaluation pipeline and creates one W&B run for each model.
-Each run logs the evaluation configuration, metrics at every `K_VALUES`
-(currently 5, 10, and 20), mean and standard-deviation values for metrics such
-as Precision, Recall, F1, Hit Rate, MAP, plus the split summary,
-user coverage, seed details, and full evaluation results.
+Each run logs the evaluation configuration, the metrics at every value in
+`K_VALUES` (currently 5, 10, and 20), and the four evaluation reports as tables.
 
-W&B is set to `offline` by default. To publish runs online, run `wandb login`
-and set `WANDB_MODE=online` before starting the script:
+W&B runs in `offline` mode by default, so the data is saved only under `wandb/`.
+To see the runs online, log in once and then either sync the offline runs:
 
 ```powershell
 wandb login
+wandb sync --sync-all
+```
+
+or log directly online:
+
+```powershell
 $env:WANDB_MODE="online"
 python -m src.wandb_logging_run
 ```
-
-For offline runs, W&B data is saved under `wandb/`. Sync it to your workspace with:
-
-```powershell
-wandb sync wandb/offline-run-*
-```
-
-
-
